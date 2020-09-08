@@ -25,7 +25,7 @@ func init() {
 }
 
 func main() {
-	defer db.Close()
+	defer db.Close() //close db connection when main() func is returned
 
 	log.Info("Starting TodoList API server")
 	router := mux.NewRouter()
