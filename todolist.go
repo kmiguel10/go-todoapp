@@ -91,6 +91,13 @@ func GetItemByID(Id int) bool {
 	return true
 }
 
+func GetCompletedItems(w http.ResponseWriter, r *http.Request) {
+	log.Info("Get completed TodoItems")
+	completedTodoItems := GetTodoItems(true)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(completedTodoItems)
+}
+
 func init() {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetReportCaller(true)
