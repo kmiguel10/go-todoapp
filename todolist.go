@@ -81,6 +81,16 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetItemByID(Id int) bool {
+	todo := &TodoItemmodel{}
+	result := db.First(&todo, Id)
+	if result.Error != nil {
+		log.Warn("TodoItem not found in database")
+		return false
+	}
+	return true
+}
+
 func init() {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetReportCaller(true)
