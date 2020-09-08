@@ -6,6 +6,8 @@ import (
 
 	"encoding/json"
 
+	"strconv"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -35,6 +37,48 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 	result := db.Last(&todo)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result.Value)
+}
+
+func UpdateItem(w http.ResponseWriter, r *http.Request) {
+	//get URL parameters from mux
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+
+	//text if the todoitem exists in database
+	err := GetItemByID(id)
+	if err == false {
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{"updated": false, "error": "Record not found"}`)
+	} else {
+		completed, _ := strconv.ParseBool(r.ForValue("completed"))
+		log.WithFields(log.Fields{"Id": id, "Completed": completed}).info("Updating TodoItem")
+		todo := &TodoItemModel{}
+		db.First(&todo, id)
+		todo.Completed = completed
+		db.Save(&todo)
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{"updated": true}`)
+	}
+}
+
+func DeleteItem(w http.ResponseWriter, r *http.Request) {
+	//Get URL parameter from mux
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+
+	//Test if the todoItem exists in DB
+	err := GetItemByID(id)
+	if err == false {
+		w.Header().Set("Content-Type", "application.json")
+		io.WriteString(w, `{"deleted": false, "error": "Record Not Found"}`)
+	} else {
+		log.WithFields(log.Fields{"Id": id}).Info("Deleteing TodoItem")
+		todo := &TodoItemModel{}
+		db.First(&todo, id)
+		db.Delete(&todo)
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{"deleted": true}`)
+	}
 }
 
 func init() {
