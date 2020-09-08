@@ -105,6 +105,12 @@ func GetIncompleteItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(IncompleteTodoItems)
 }
 
+func GetTodoItems(completed bool) interface{} {
+	var todos []TodoItemModel
+	TodoItems := db.Where("completed = ?", completed).Find(&todos).Value
+	return TodoItems
+}
+
 func init() {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetReportCaller(true)
@@ -119,6 +125,10 @@ func main() {
 	log.Info("Starting TodoList API server")
 	router := mux.NewRouter()
 	router.HandleFunc("/healthz", Healthz).Methods("GET")
+	router.HandleFunc("/todo-completed", GetCompletedItems).Methods("GET")
+	router.HandleFunc("/todo-incomplete", GetIncompleteItems).Methods("GET")
 	router.HandleFunc("/todo", CreateItem).Methods("POST")
+	router.HandleFunc("/todo/{id}", UpdateItem).Methods("POST")
+	router.HandleFunc("/todo/{id}", DeleteItem).Methods("DELETE")
 	http.ListenAndServe(":8000", router)
 }
