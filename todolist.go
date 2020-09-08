@@ -98,6 +98,13 @@ func GetCompletedItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(completedTodoItems)
 }
 
+func GetIncompleteItems(w http.ResponseWriter, r *http.Request) {
+	log.Indo("Get incomplete TodoItems")
+	IncompleteTodoItems := GetTodoItems(false)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(IncompleteTodoItems)
+}
+
 func init() {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetReportCaller(true)
